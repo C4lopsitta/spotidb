@@ -1,3 +1,5 @@
+from datetime import datetime
+
 
 class SpotifyStream:
     def __init__(self,
@@ -54,6 +56,9 @@ class SpotifyStream:
     @classmethod
     def from_dict(cls, d: dict):
         return cls(**d)
+
+    def to_dict(self) -> dict:
+        return self.__dict__
     
     def ms_to_time(self) -> str:
         if self.ms_played is None:
@@ -72,6 +77,18 @@ class SpotifyStream:
         if self.ms_played is None:
             return 0.0
         return (self.ms_played / track_duration_ms) * 100
+
+    def to_ts(self) -> int:
+        dt = datetime.fromisoformat(self.ts.replace("Z", "+00:00"))
+        return int(dt.timestamp())
+
+    def to_offline_timestamp(self) -> int:
+        if self.offline_timestamp is None:
+            return 0
+        if type(self.offline_timestamp) is not str:
+            return int(self.offline_timestamp)
+        dt = datetime.fromisoformat(self.offline_timestamp.replace("Z", "+00:00"))
+        return int(dt.timestamp())
 
     def __str__(self):
         return f"{self.ts} - {self.master_metadata_track_name} - {self.master_metadata_album_artist_name} - {self.reason_start} - {self.ms_to_time()} - {self.reason_end}"
